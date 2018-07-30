@@ -246,7 +246,7 @@ Take a look at https://github.com/rmoff/kafka-listeners. This includes a docker-
 +
 [source,bash]
 ----
-$ docker run -t --network listeners_default \
+$ docker run -t --network kafka-listeners_default \
             confluentinc/cp-kafkacat \
             kafkacat -b kafka0:29092 \
                      -L
@@ -259,7 +259,7 @@ Metadata for all topics (from broker 0: kafka0:29092/0):
 +
 [source,bash]
 ----
-$ docker run -t --network listeners_default \
+$ docker run -t --network kafka-listeners_default \
             confluentinc/cp-kafkacat \
             kafkacat -b kafka0:9092 \
                      -L
@@ -272,7 +272,7 @@ Metadata for all topics (from broker -1: kafka0:9092/bootstrap):
 +
 [source,bash]
 ----
-$ docker run -t --network listeners_default \
+$ docker run -t --network kafka-listeners_default \
             confluentinc/cp-kafkacat \
             kafkacat -b kafka0:29094 \
                      -L
