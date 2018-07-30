@@ -2,13 +2,13 @@
 Robin Moffatt <robin@confluent.io>
 v0.10, 30 Jul 2018`
 
-This question comes up on StackOverflow a **lot**, so here's a Googlable blog to help. 
+This question comes up on StackOverflow and such places a **lot**, so here's something to try and help.
 
-**tl;dr** : You need to set `advertised.listeners` (or `KAFKA_ADVERTISED_LISTENERS` if you're using Docker images) to the external address (host/IP) so that clients can correctly connect to it. Otherwise they'll try to connect to the internal IP (since `advertised.listeners` will default to `listeners` unless explicitly set)
+**tl;dr** : You need to set `advertised.listeners` (or `KAFKA_ADVERTISED_LISTENERS` if you're using Docker images) to the external address (host/IP) so that clients can correctly connect to it. Otherwise they'll try to connect to the internal host address–and if that's not reachable then problems ensue.
 
 == Is anyone listening? 
 
-Kafka is a distributed system. Data is read from & written to the _Leader_ for a given partition, which could be on any of the brokers in a cluster. When a client (producer/consumer) starts, it will request metadata about which broker is the leader for a partition from—and it can do this from _any_ broker. The metadata returned will include the endpoints available for the Leader broker for that partition, and the client will then use those endpoints to connect to the broker to read/write data as required. 
+Kafka is a distributed system. Data is read from & written to the _Leader_ for a given partition, which could be on any of the brokers in a cluster. When a client (producer/consumer) starts, it will request metadata about which broker is the leader for a partition—and it can do this from _any_ broker. The metadata returned will include the endpoints available for the Leader broker for that partition, and the client will then use those endpoints to connect to the broker to read/write data as required. 
 
 It's these endpoints that cause people trouble. On a *single machine, running 'bare metal'* (no VMs, no Docker), everything might be the hostname (or just *`localhost`*) and it's easy. But once you move into more complex networking setups, and multiple nodes, you have to pay more attention to it. 
 
@@ -19,7 +19,7 @@ Let's assume you have more than one network. This could be things like:
 
 You need to tell Kafka how the brokers can reach each other, but also make sure that external clients (producers/consumers) can reach the broker they need to. 
 
-*The key thing is that when you run a client, the broker you pass to it is _just where it's going to go and get the metadata about brokers in the cluster from_. The actual host & IP that it will connect to for reading/writing data is based on _the data that the broker passes back in that initial connection_—even if it's just a single node and the broker returned is the same as the one connected to.* 
+The key thing is that when you run a client, *the broker you pass to it is _just where it's going to go and get the metadata about brokers in the cluster from_*. The actual host & IP that it will connect to for reading/writing data is based on *_the data that the broker passes back in that initial connection_*—even if it's just a single node and the broker returned is the same as the one connected to.
 
 For configuring this correctly, you need to understand that Kafka brokers can have multiple _listeners_. A listener is a combination of 
 
@@ -80,7 +80,7 @@ You can also use `tcpdump` to examine the traffic from a client connecting to th
 
 == Why can I connect to the broker, but the client still fails? 
 
-tl;dr even if you can make the initial connection to the broker, the address returned in the metadata may still be for a hostname that is not accessible from your client. 
+*tl;dr* Even if you can make the initial connection to the broker, the address returned in the metadata may still be for a hostname that is not accessible from your client. 
 
 Let's walk this through step by step. 
 
