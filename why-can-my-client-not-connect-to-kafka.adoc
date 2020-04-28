@@ -5,18 +5,35 @@
 When a client wants to send or receive a message from Kafka, there are *two* connections that must succeed: 
 
 1. The *initial* connection to a broker (the bootstrap). This returns to the client metadata including a list of all the brokers in the cluster. 
-2. The client then connects to one of the brokers *returned in the first step* according to which broker is the leader for the partition that the client is producing or consuming to or from.
+2. The client then connects to one of the brokers *returned in the first step* according to which broker is the leader for the partition that the client is producing or consuming to or from. If the broker has not been configured correctly then the value returned is incorrect.
 
 What sometimes happens is that people focus on only step 1 above, and get caught out by step 2. The broker details returned in step 1 are defined by the `advertised.listeners` setting of the broker(s) and *must* be resolvable and accessible from the client machine. 
 
 To read more about the protocol see the https://kafka.apache.org/protocol#protocol_partitioning[docs here], as well as this previous https://rmoff.net/2018/08/02/kafka-listeners-explained/[explanatory article] that I wrote. 
 
-Below I show using a client connecting to Kafka in various permutations of deployment topology. I'm using Python with librdkafka (`confluent_kafka`) but the principle applies to clients across all languages. The python code I'm running is very simple and just serves to illustrate the connection process. It's simplified to benefit clarity, at the expense of good coding and functionality :) 
+Below I use a client connecting to Kafka in various permutations of deployment topology. It's written using Python with librdkafka (`confluent_kafka`) but the principle applies to clients across all languages. You can find the https://github.com/rmoff/kafka-listeners/blob/master/python/python_kafka_test_client.py[code on GitHub here]. It's very simple and just serves to illustrate the connection process. It's simplified to benefit clarity, at the expense of good coding and functionality :) 
 
-[source,python]
-----
-include::python_kafka_test_client.py[]
-----
+== An illustrated example
+
+Let's imagine we have two servers. On one is our client, and on the other is our Kafka cluster's single broker (forget for a moment that Kafka clusters usually have a minimum of three brokers). 
+
+First, the client initiates a connection to the bootstrap server(s), which is one (or more) of the brokers on the cluster. 
+
+image::images/step01.png[]
+
+The broker returns metadata, which includes the host + port on which all the brokers in the cluster can be reached
+
+image::images/step02.png[]
+
+This list is what the client then uses for all subsequent connections to produce or consume data. It will connect directly to one or more of the brokers based on which is the leader for the topic partition with which it wants to interact. 
+
+image::images/step03.png[]
+
+What often goes wrong is that the broker is misconfigured and returns an address on which the client cannot correctly connect to the broker: 
+
+image::images/step04.png[]
+
+In this article I'm going to walk through some common scenarios and explain how to fix each one. 
 
 == Client and Kafka running on the same local machine
 
@@ -148,7 +165,7 @@ We'll start with the simplest permutation here, and run both Kafka and our clien
 [source,dockerfile]
 .Dockerfile
 ----
-include::Dockerfile[]
+include::python/Dockerfile[]
 ----
 
 [source,bash]
@@ -264,7 +281,7 @@ Mucking about with commandline flags for configuration of Docker containers gets
 [source,yaml]
 .docker-compose.yml
 ----
-include::docker-compose_initial.yml[]
+include::python/docker-compose_initial.yml[]
 ----
 
 Make sure you've shutdown the Docker containers above first (`docker rm -f kafka; docker rm -f zookeeper`) and then making sure you're in the same folder as the above `docker-compose.yml` run: 
@@ -597,7 +614,7 @@ Yes, you need to be able to reach the broker on the host and port you provide in
 
 === Do I have to use Python to do this? 
 
-Nope - any client application should be able to expose the metadata too. <<TODO link to client library list here>> . Here's an example using kafkacat: 
+Nope - any client library (see the list https://docs.confluent.io/current/clients/index.html#ak-clients[here] and https://github.com/confluentinc/examples/blob/5.5.0-post/clients/cloud/README.md[here]) should be able to expose the metadata too. Here's an example using kafkacat: 
 
 [source,bash]
 ----
