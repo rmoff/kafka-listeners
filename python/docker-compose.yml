@@ -1,0 +1,48 @@
+---
+version: '3.5'
+
+networks: 
+  rmoff_kafka:
+    name: rmoff_kafka
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.5.0
+    container_name: zookeeper
+    networks: 
+      - rmoff_kafka
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  broker:
+    image: confluentinc/cp-kafka:5.5.0
+    container_name: broker
+    ports: 
+      - "19092:19092"
+    networks: 
+      - rmoff_kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,CONNECTIONS_FROM_HOST://localhost:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONNECTIONS_FROM_HOST:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  client:
+    image: python_kafka_test_client
+    container_name: python_kafka_test_client
+    depends_on: 
+      - broker
+    networks: 
+      - rmoff_kafka
+    entrypoint: 
+      - bash 
+      - -c 
+      - |
+        echo 'Giving Kafka a bit of time to start up…'
+        sleep 30
+        # Run the client code
+        python /python_kafka_test_client.py broker:9092
+        
