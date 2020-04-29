@@ -70,8 +70,8 @@ try:
     bootstrap_server=bs
 except:
     # no bs X-D
-    print('⚠️  No bootstrap server defined, defaulting to localhost:9092\n')
-    bootstrap_server='localhost:19092'
+    bootstrap_server='localhost:9092'
+    print('⚠️  No bootstrap server defined, defaulting to {}\n'.format(bootstrap_server))
 
 
 a = AdminClient({'bootstrap.servers': bootstrap_server})
