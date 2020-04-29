@@ -33,6 +33,10 @@ What often goes wrong is that the broker is misconfigured and returns an address
 
 image::images/step04.png[]
 
+The client then tries to connect to this incorrect address, and then fails
+
+image::images/step05.png[]
+
 In this article I'm going to walk through some common scenarios and explain how to fix each one. 
 
 == Client and Kafka running on the same local machine
@@ -79,6 +83,8 @@ NOTE: the broker metadata returned is `192.168.10.182` but since that's the IP o
 == Client and Kafka running on the different machines
 
 Now let's check the connection to a Kafka broker running on another machine. This could be a machine on your local network, or perhaps running on cloud infrastructure such as AWS, GCP, or Azure.
+
+image::images/twomachines01.png[]
 
 In my example my client is running on my laptop, connecting to Kafka running on another machine on my LAN called `asgard05`: 
 
