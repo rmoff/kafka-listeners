@@ -3,9 +3,12 @@
 #
 # Pre-reqs:
 #  - A Kafka broker
-#      Update `bootstrap_server` below to point to it
 #  - Confluent Kafka Python library
 #      pip3 install confluent_kafka
+#
+# Usage: 
+#
+#  python python_kafka_test_client.py [bootstrap server]
 # 
 # Refs: 
 #  - https://docs.confluent.io/current/clients/python.html
