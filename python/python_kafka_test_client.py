@@ -93,6 +93,14 @@ try:
     """
     % (bootstrap_server,md.brokers))
 
+    try:
+        Produce(['foo / ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')])
+
+        Consume()
+    except:
+        print("❌ (uncaught exception in produce/consume)")
+
+
 except Exception as e:
     print("""
     ❌ Failed to connect to bootstrap server.
@@ -102,7 +110,3 @@ except Exception as e:
     ℹ️  Check that Kafka is running, and that the bootstrap server you've provided (%s) is reachable from your client
     """
     % (e,bootstrap_server))
-
-Produce(['foo / ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')])
-
-Consume()
