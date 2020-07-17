@@ -145,8 +145,6 @@ func doProduce(broker Broker, topic string) (message string, err error) {
 
 		if len(e) > 0 {
 			// If we've got any errors, then return an error to the caller
-
-			fmt.Printf("❌ Returning an error from the Producer\n")
 			return "", errors.New(e)
 		}
 

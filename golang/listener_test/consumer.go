@@ -17,6 +17,7 @@ func doConsume(broker Broker, topic, message string) error {
 	cm := kafka.ConfigMap{
 		"bootstrap.servers":    broker.String(),
 		"group.id":             "rmoff_learning_go_foo",
+		"auto.offset.reset":    "earliest",
 		"enable.partition.eof": true}
 
 	// Variable p holds the new Consumer instance.

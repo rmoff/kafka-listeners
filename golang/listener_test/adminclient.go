@@ -41,33 +41,20 @@ func doAdmin(broker Broker) error {
 
 		fmt.Println("✔️ Created AdminClient")
 
-		// Create a context for use when calling some of these functions
-		// This lets you set a variable timeout on invoking these calls
-		// If the timeout passes then an error is returned.
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		// Get the ClusterID
-		if c, e := a.ClusterID(ctx); e != nil {
-			return fmt.Errorf("😢 Error getting ClusterID\n\tError: %v", e)
-		} else {
-			fmt.Printf("✔️ ClusterID: %v\n", c)
-		}
-
-		// Start the context timer again (otherwise it carries on from the original deadline)
-		ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		// Get the ControllerID
-		if c, e := a.ControllerID(ctx); e != nil {
-			return fmt.Errorf("😢 Error getting ControllerID\n\tError: %v", e)
-		} else {
-			fmt.Printf("✔️ ControllerID: %v\n", c)
-		}
-
 		// Get some metadata
-		if md, e := a.GetMetadata(nil, false, int(5*time.Second)); e != nil {
-			return fmt.Errorf("😢 Error getting cluster Metadata\n\tError: %v", e)
+		if md, e := a.GetMetadata(nil, false, 5000); e != nil {
+			if ke, ok := e.(kafka.Error); ok == true {
+				switch ec := ke.Code(); ec {
+				case kafka.ErrTransport:
+					return fmt.Errorf("😢 Error (%v) getting cluster Metadata.\nIs %v a valid broker and reachable from the machine on which this is running?", e, broker)
+				default:
+					return fmt.Errorf("😢 Error getting cluster Metadata\n\tError: %v", e)
+				}
+			} else {
+				// It's not a kafka.Error
+				return fmt.Errorf("😢 Error getting cluster Metadata\n\tError: %v", e)
+			}
+
 		} else {
 			// Print the originating broker info
 			fmt.Printf("✔️ Metadata - Originating broker [i.e. the broker to which you're connected here]\n")
@@ -85,7 +72,7 @@ func doAdmin(broker Broker) error {
 
 			}
 			if f == false {
-				return fmt.Errorf("\n😱 😱 😱 😱 😱 😱 😱 😱 \n🛑 None of the advertised listeners on the cluster match the broker (%v) to which you're connecting.\n\nYou're gonna have a bad time trying to produce or consumer with the config like this.\n\n🔗 Check out https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc to understand more", broker)
+				fmt.Printf("\n😱 😱 😱 😱 😱 😱 😱 😱 \n🛑 None of the advertised listeners on the cluster match the broker (%v) to which you're connecting.\n\nYou're gonna have a bad time trying to produce or consumer with the config like this.\n\n🔗 Check out https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc to understand more", broker)
 			}
 			// // Print the topics
 			// fmt.Printf("✔️ Metadata - topics\n")
@@ -93,6 +80,31 @@ func doAdmin(broker Broker) error {
 			// 	fmt.Printf("\t(%v partitions)\t%v\n", len(t.Partitions), t.Topic)
 			// }
 		}
+
+		// Create a context for use when calling some of these functions
+		// This lets you set a variable timeout on invoking these calls
+		// If the timeout passes then an error is returned.
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		// Get the ClusterID
+		if c, e := a.ClusterID(ctx); e != nil {
+			return fmt.Errorf("😢 Error getting ClusterID\n\tError: %v", e)
+		} else {
+			fmt.Printf("\n✔️ ClusterID: %v\n", c)
+		}
+
+		// Start the context timer again (otherwise it carries on from the original deadline)
+		ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		// Get the ControllerID
+		if c, e := a.ControllerID(ctx); e != nil {
+			return fmt.Errorf("😢 Error getting ControllerID\n\tError: %v", e)
+		} else {
+			fmt.Printf("✔️ ControllerID: %v\n", c)
+		}
+
 		// 👋 … and we're done
 		return nil
 	}
