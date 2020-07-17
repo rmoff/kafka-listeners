@@ -8,6 +8,13 @@ It's been a fun journey, and I am pleased to be able to show the results of it.
 
 image::../images/go01.gif[]
 
+You need https://github.com/confluentinc/confluent-kafka-go[Confluent's Golang Client for Apache Kafka™️], which you can install thus: 
+
+[source,go]
+----
+go get gopkg.in/confluentinc/confluent-kafka-go.v1/kafka
+----
+
 You can run the code directly with go: 
 
 [source,bash]
@@ -138,6 +145,3 @@ Using Broker: localhost:9092
 ❌There was a problem calling the Admin Client:
 😢 Error (Local: Broker transport failure) getting cluster Metadata. Is localhost:9092 valid broker and reachable from the machine on which this is running?
 ----
-
-
-include::/Users/rmoff/git/rmoff-blog/content/go-series.adoc[]
