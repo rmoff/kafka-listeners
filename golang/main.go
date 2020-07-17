@@ -1,6 +1,6 @@
 // Utility that checks Kafka broker advertised listener config
 //
-// See https://rmoff.net/2020/07/17/learning-golang-some-rough-notes-s02e08-checking-kafka-advertised.listeners-with-golang/
+// See https://rmoff.net/2020/07/17/learning-golang-some-rough-notes-s02e08-checking-kafka-advertised.listeners-with-go/
 // and https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc
 //
 // @rmoff 17 July 2020
