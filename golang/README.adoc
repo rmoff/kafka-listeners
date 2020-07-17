@@ -1,8 +1,8 @@
-Checking Kafka advertised.listeners with Go'
+= Checking Kafka advertised.listeners with Go
+Robin Moffatt <robin@moffatt.me>
+v1.00, 17 July 2020
 
 When I https://rmoff.net/2020/06/25/learning-golang-some-rough-notes-s01e00/[set out] to learn something new (Go), I had in mind to use it to write a version of a utility that I'd previously https://github.com/rmoff/kafka-listeners/blob/master/python/python_kafka_test_client.py[hacked together in Python] that checks your Apache Kafka broker configuration for possible problems with the infamous `advertised.listeners` setting. Check out a blog that I wrote which explains _https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc[all about Apache Kafka and listener configuration]_.
-
-NOTE: You can find the code at https://github.com/rmoff/kafka-listeners
 
 It's been a fun journey, and I am pleased to be able to show the results of it. 
 
